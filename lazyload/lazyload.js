@@ -14,48 +14,50 @@
 	IE6+
 */
 
-;(function (global, document) {
+;
+(function(global, document) {
 
-	if (global.Lazyed) return;
+    if (global.Lazyed) return;
 
-	var lock = false;
-	var viewportHeight;
-	var elems, // All lazyload elements in document, reduce itself when loaded
-		originElems, // All lazyload elements in document for backup
-		delta, // the distance before reach the viewport
-		scrollIntoView;
+    var lock = false;
+    var viewportHeight;
+    var elems, // All lazyload elements in document, reduce itself when loaded
+        originElems, // All lazyload elements in document for backup
+        delta, // the distance before reach the viewport
+        scrollIntoView;
 
-	/*
+    /*
 		Polyfill for getElementsByClassName:
 		https://gist.github.com/eikes/2299607
 	*/
-	var getElementsByClassName = function (name) {
-		var elements = [], temp;
+    var getElementsByClassName = function(name) {
+        var elements = [],
+            temp;
 
-		if (document.querySelectorAll) {
-			elements = document.querySelectorAll("." + name);
-		} else if (document.getElementsByClassName) {
-			elements = document.getElementsByClassName(name);
-		} else if (document.evaluate) {
-			pattern = ".//*[contains(concat(' ', @class, ' '), ' " + name + " ')]";
-		    temp = d.evaluate(pattern, d, null, 0, null);
-			while ((i = temp.iterateNext())) {
-				elements.push(i);
-			}			
-		} else {
-			temp = d.getElementsByTagName("*");
-			pattern = new RegExp("(^|\\s)" + name + "(\\s|$)");
-			for (i = 0; i < temp.length; i++) {
-				if ( pattern.test(temp[i].className) ) {
-			  		elements.push(temp[i]);
-				}
-			}
-		}
+        if (document.querySelectorAll) {
+            elements = document.querySelectorAll("." + name);
+        } else if (document.getElementsByClassName) {
+            elements = document.getElementsByClassName(name);
+        } else if (document.evaluate) {
+            pattern = ".//*[contains(concat(' ', @class, ' '), ' " + name + " ')]";
+            temp = d.evaluate(pattern, d, null, 0, null);
+            while ((i = temp.iterateNext())) {
+                elements.push(i);
+            }
+        } else {
+            temp = d.getElementsByTagName("*");
+            pattern = new RegExp("(^|\\s)" + name + "(\\s|$)");
+            for (i = 0; i < temp.length; i++) {
+                if (pattern.test(temp[i].className)) {
+                    elements.push(temp[i]);
+                }
+            }
+        }
 
-		return Array.prototype.slice.call(elements);
-	}
+        return Array.prototype.slice.call(elements);
+    }
 
-	/*
+    /*
 		RequestAnimationFrame polyfill
 
 		Update from requestAnimationFrame polyfill by Erik Möller:
@@ -64,28 +66,27 @@
 		**Remove callback timestamp parameter**
 	*/
     var vendors = ['', 'ms', 'moz', 'webkit', 'o'];
-    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
-                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] || window[vendors[x] + 'CancelRequestAnimationFrame'];
     }
- 
+
     if (!window.requestAnimationFrame)
         window.requestAnimationFrame = function(callback, element) {
 
-            var id = window.setTimeout(function() { 
-            	callback();
+            var id = window.setTimeout(function() {
+                callback();
             }); // use the browser default clock interval
 
             return id;
         };
- 
-    if (!window.cancelAnimationFrame) 
+
+    if (!window.cancelAnimationFrame)
         window.cancelAnimationFrame = function(id) {
             clearTimeout(id);
-        };	
+        };
 
-	/*
+    /*
 		http://www.webdeveloper.com/forum/showthread.php?179931-document-documentElement-vs-document-body:
 
 		1. IE 6-8 strict, Mozilla strict and Opera 9.5+ strict
@@ -110,69 +111,81 @@
 		document.documentElement: Returns the Element that is the root element of the document
 	*/
 
-	function setViewportHeight() {
-		viewportHeight = window.innerHeight // Attention: including scrollbar
-						|| document.documentElement.clientHeight 
-						||  document.body.clientHeight 
-						|| 100 * 100 * 100; // 100 * 100 * 100 is fallback for load all images
-	}
+    function setViewportHeight() {
+        viewportHeight = window.innerHeight // Attention: including scrollbar
+        || document.documentElement.clientHeight || document.body.clientHeight || 100 * 100 * 100; // 100 * 100 * 100 is fallback for load all images
+    }
 
-	function loadElement(curElement) {
-		scrollIntoView(curElement, elems, originElems);
-	}	
+    function loadElement(curElement) {
+        scrollIntoView(curElement, elems, originElems);
+    }
 
-	/*
+    /*
 		Ease check: just check the top level,
 		**so the element maybe still out the viewport by negative left or right value**
 	*/
 
-	function isInViewport(elem) {
-		var elemPos = elem.getBoundingClientRect();
-		if (elemPos.top && elemPos.top > 0 && elemPos.top <= viewportHeight + delta) {
-			return true;
-		}
-		return false;
-	}
+    function isInViewport(elem) {
+        var elemPos = elem.getBoundingClientRect();
+        if (elemPos.top && elemPos.top > 0 && elemPos.top <= viewportHeight + delta) {
+            return true;
+        }
+        return false;
+    }
 
 
-	function checkAvailable() {
-		for (var i = 0; i < elems.length; i++) {
-			var el = elems[i];
-			if (isInViewport(el)) {
-				loadElement(el);
-				/*
+    function checkAvailable() {
+        for (var i = 0; i < elems.length; i++) {
+            var el = elems[i];
+            if (isInViewport(el)) {
+                loadElement(el);
+                /*
 					if ([]) {return true} // true
 					if ({}) {return true} // true
 					if ("") {return true} // false
 				*/
-				if (elems.length) elems.splice(i--, 1);
-			}
-		}
+                if (elems.length) elems.splice(i--, 1);
+            }
+        }
 
-		lock = false;
-	}
+        lock = false;
+    }
 
-	function update () {
-		if (!lock) {
-			window.requestAnimationFrame(checkAvailable);
-		}
-		lock = true;
-	}
+    function update() {
+        if (!lock) {
+            window.requestAnimationFrame(checkAvailable);
+        }
+        lock = true;
+    }
 
-    global.Lazyed = function (options) {
-     	originElems = elems = getElementsByClassName("data-lazyed-elem");
-     	delta = options.delta || 0;
-     	scrollIntoView = options.scrollIntoView || new Function();
+    global.Lazyed = function(options) {
+        originElems = elems = getElementsByClassName("data-lazyed-elem");
+        delta = options.delta || 0;
+        scrollIntoView = options.scrollIntoView || new Function();
 
-     	setViewportHeight();
+        setViewportHeight();
 
-		window.onscroll = function () {
-			update();
-		}
+        window.onscroll = function() {
+            update();
+        }
 
-		window.onresize = function () {
-			setViewportHeight();
-		}		     	
+        window.onresize = function() {
+            setViewportHeight();
+        }
+    }
+
+    // Support AMD
+    /*
+		Inspire by
+		Backbone: https://github.com/jashkenas/backbone/blob/master/backbone.js
+		jQuery: http://code.jquery.com/jquery-1.9.1.js
+    */
+    if (typeof define === 'function' && define.amd) {
+        define("Lazyed", function (requre, exports, module) {
+            // module.exports = {
+            // 	Lazyed: global.Lazyed
+            // }
+        });
     }
 
 })(this, document);
