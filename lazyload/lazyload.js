@@ -26,6 +26,16 @@
         delta, // the distance before reach the viewport
         scrollIntoView;
 
+    var bindEventHandler = function(el, eventType, fn) {
+        if (window.addEventListener) {
+            el.addEventListener(eventType, fn, false);
+        } else if (window.attachEvent) {
+            el.attachEvent("on" + eventType, fn);
+        } else {
+            el["on" + eventType] = fn;
+        }
+    }
+
     /*
 		Polyfill for getElementsByClassName:
 		https://gist.github.com/eikes/2299607
@@ -38,7 +48,7 @@
             elements = document.querySelectorAll("." + name);
         } else if (document.getElementsByClassName) {
             elements = document.getElementsByClassName(name);
-        } else if (document.evaluate) {
+        } else if (document.evaluate) { // IE6/7
             pattern = ".//*[contains(concat(' ', @class, ' '), ' " + name + " ')]";
             temp = d.evaluate(pattern, d, null, 0, null);
             while ((i = temp.iterateNext())) {
@@ -170,13 +180,13 @@
             http://ejohn.org/blog/learning-from-twitter/
             http://www.html5rocks.com/en/tutorials/speed/animations/
         */
-        window.onscroll = function() {
+        bindEventHandler(document, "scroll", function() {
             update();
-        }
+        });
 
-        window.onresize = function() {
+        bindEventHandler(document, "resize", function() {
             setViewportHeight();
-        }
+        });
     }
 
 
