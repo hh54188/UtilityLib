@@ -169,6 +169,8 @@
     }
 
     global.Lazyed = function(options) {
+        options = options || {};
+
         originElems = elems = getElementsByClassName("data-lazyed-elem");
         delta = options.delta || 0;
         scrollIntoView = options.scrollIntoView || new Function();
