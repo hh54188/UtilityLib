@@ -1,0 +1,25 @@
+{
+  "name": "UtilityLib",
+  "version": "0.0.0",
+  "description": "UtilityLib\r ==========",
+  "main": "app.js",
+  "dependencies": {
+    "express": "~4.0.0"
+  },
+  "devDependencies": {
+    "express": "~4.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hh54188/UtilityLib.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hh54188/UtilityLib/issues"
+  },
+  "homepage": "https://github.com/hh54188/UtilityLib"
+}

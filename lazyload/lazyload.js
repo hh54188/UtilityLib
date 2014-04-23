@@ -165,6 +165,11 @@
 
         setViewportHeight();
 
+        /*  Bad idea to attach handlers to the window scroll event:
+
+            http://ejohn.org/blog/learning-from-twitter/
+            http://www.html5rocks.com/en/tutorials/speed/animations/
+        */
         window.onscroll = function() {
             update();
         }
@@ -174,17 +179,16 @@
         }
     }
 
-    // Support AMD
+
     /*
-		Inspire by
+		Support AMD:
+
 		Backbone: https://github.com/jashkenas/backbone/blob/master/backbone.js
 		jQuery: http://code.jquery.com/jquery-1.9.1.js
     */
     if (typeof define === 'function' && define.amd) {
-        define("Lazyed", function (requre, exports, module) {
-            // module.exports = {
-            // 	Lazyed: global.Lazyed
-            // }
+        define(function(require, exports, module) {
+            return global.Lazyed;
         });
     }
 
