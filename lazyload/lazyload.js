@@ -17,13 +17,17 @@
 ;
 (function(global, document) {
 
-    if (global.Lazyed) return;
+    global.Util = global.Util || {};
+
+    if (global.Util.lazyload) return;
 
     var lock = false;
     var viewportHeight;
     var elems, // All lazyload elements in document, reduce itself when loaded
         originElems, // All lazyload elements in document for backup
         delta, // the distance before reach the viewport
+        defaultSelectorClass = "data-lazyed-elem",
+        selectorClass = defaultSelectorClass,
         scrollIntoView;
 
     var bindEventHandler = function(el, eventType, fn) {
@@ -168,10 +172,11 @@
         lock = true;
     }
 
-    global.Lazyed = function(options) {
+    global.Util.lazyload = function(options) {
         options = options || {};
 
-        originElems = elems = getElementsByClassName("data-lazyed-elem");
+        selectorClass = options.selectorClass || defaultSelectorClass;
+        originElems = elems = getElementsByClassName(selectorClass);
         delta = options.delta || 0;
         scrollIntoView = options.scrollIntoView || new Function();
 
@@ -200,7 +205,7 @@
     */
     if (typeof define === 'function' && define.amd) {
         define(function(require, exports, module) {
-            return global.Lazyed;
+            return global.Util.lazyload;
         });
     }
 
