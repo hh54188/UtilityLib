@@ -26,19 +26,36 @@
     var elems, // All lazyload elements in document, reduce itself when loaded
         originElems, // All lazyload elements in document for backup
         delta, // the distance before reach the viewport
-        defaultSelectorClass = "data-lazyed-elem",
+        defaultSelectorClass = "data-lazy-elem",
         selectorClass = defaultSelectorClass,
         scrollIntoView;
+
+    /*
+        simple deep copy for array(for originElems and elems)
+    */
+    var deepCopyArr = function (dest, source) {
+        if (!dest || !dest.length) dest = [];
+
+        for (var i = 0; i < source.length; i++) {
+            dest.push(source[i]);
+        }
+        return dest;
+    };
 
     var bindEventHandler = function(el, eventType, fn) {
         if (window.addEventListener) {
             el.addEventListener(eventType, fn, false);
         } else if (window.attachEvent) {
+            /*
+                IE8 and below version doesn't support addEventListener,
+                and ensure the `scroll` and `resize` only bind(and work) on `window` object
+            */
+            el = window;
             el.attachEvent("on" + eventType, fn);
         } else {
             el["on" + eventType] = fn;
         }
-    }
+    };
 
     /*
 		Polyfill for getElementsByClassName:
@@ -54,12 +71,12 @@
             elements = document.getElementsByClassName(name);
         } else if (document.evaluate) { // IE6/7
             pattern = ".//*[contains(concat(' ', @class, ' '), ' " + name + " ')]";
-            temp = d.evaluate(pattern, d, null, 0, null);
+            temp = document.evaluate(pattern, document, null, 0, null);
             while ((i = temp.iterateNext())) {
                 elements.push(i);
             }
         } else {
-            temp = d.getElementsByTagName("*");
+            temp = document.getElementsByTagName("*");
             pattern = new RegExp("(^|\\s)" + name + "(\\s|$)");
             for (i = 0; i < temp.length; i++) {
                 if (pattern.test(temp[i].className)) {
@@ -67,8 +84,14 @@
                 }
             }
         }
-
-        return Array.prototype.slice.call(elements);
+        /*
+            Array.prototype.slice.call doesn't work in IE
+        */
+        var elems = [];
+        for (var i = 0; i < elements.length; i++) {
+            elems.push(elements[i]);
+        }
+        return elems;
     }
 
     /*
@@ -152,13 +175,13 @@
         for (var i = 0; i < elems.length; i++) {
             var el = elems[i];
             if (isInViewport(el)) {
-                loadElement(el);
                 /*
-					if ([]) {return true} // true
-					if ({}) {return true} // true
-					if ("") {return true} // false
-				*/
-                if (elems.length) elems.splice(i--, 1);
+                    if ([]) {return true} // true
+                    if ({}) {return true} // true
+                    if ("") {return true} // false
+                */
+                if (elems.length) elems.splice(i--, 1);                
+                loadElement(el);
             }
         }
 
@@ -176,7 +199,10 @@
         options = options || {};
 
         selectorClass = options.selectorClass || defaultSelectorClass;
-        originElems = elems = getElementsByClassName(selectorClass);
+        originElems = getElementsByClassName(selectorClass);
+        if (!originElems.length) return;
+
+        elems = deepCopyArr(elems, originElems);
         delta = options.delta || 0;
         scrollIntoView = options.scrollIntoView || new Function();
 
@@ -187,11 +213,11 @@
             http://ejohn.org/blog/learning-from-twitter/
             http://www.html5rocks.com/en/tutorials/speed/animations/
         */
-        bindEventHandler(document, "scroll", function() {
+        bindEventHandler(window, "scroll", function() {
             update();
         });
 
-        bindEventHandler(document, "resize", function() {
+        bindEventHandler(window, "resize", function() {
             setViewportHeight();
         });
     }

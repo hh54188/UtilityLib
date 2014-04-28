@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>TEST-SELECTOR</title>
+	<script type="text/javascript" src="../lazyload.js"></script>
+	<link rel="stylesheet" type="text/css" href="./style.css">
+</head>
+<body>
+	<ul>
+		<li class="custom" id="first"></li>
+		<li class="custom" id="second"></li>
+		<li class="data-lazy-elem" id="third"></li>
+	</ul>
+	<script type="text/javascript">
+		Util.lazyload({
+			selectorClass: "custom",
+			scrollIntoView: function (cur, remain, origin) {
+				console.log(cur);
+				cur.style.backgroundColor = "yellow";
+			}
+		});
+	</script>
+</body>
+</html>
