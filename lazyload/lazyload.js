@@ -33,7 +33,7 @@
     /*
         simple deep copy for array(for originElems and elems)
     */
-    var deepCopyArr = function (dest, source) {
+    var deepCopyArr = function(dest, source) {
         if (!dest || !dest.length) dest = [];
 
         for (var i = 0; i < source.length; i++) {
@@ -89,7 +89,7 @@
         */
         try {
             return Array.prototype.slice.call(elements);
-        } catch(e) {
+        } catch (e) {
             var elems = [];
             for (var i = 0; i < elements.length; i++) {
                 elems.push(elements[i]);
@@ -166,12 +166,41 @@
 		**so the element maybe still out the viewport by negative left or right value**
 	*/
 
-    function isInViewport(elem) {
-        var elemPos = elem.getBoundingClientRect();
-        if (elemPos.top && elemPos.top > 0 && elemPos.top <= viewportHeight + delta) {
-            return true;
+    function getElemOffsetTop(el) {
+        var top = el.offsetTop;
+        /*
+            offsetParent have a good compatibility
+            http://www.quirksmode.org/dom/w3c_cssom.html#offsetParent
+        */
+        var parent = el.offsetParent;
+        while (parent) {
+            top += parent.offsetTop || 0;
+            parent = parent.offsetParent;
         }
-        return false;
+        return top;
+    }
+
+    function isInViewport(elem) {
+        if (elem.getBoundingClientRect) {
+            var elemPos = elem.getBoundingClientRect();
+            if (elemPos.top && elemPos.top > 0 && elemPos.top <= viewportHeight + delta) {
+                return true;
+            }
+            return false;
+        } else {
+            // iPad Safari doesn't support `getBoundingClientRect` method
+            var scrollY = window.scrollY;
+            /*
+                I have to calcuate offsetTop everytime,
+                cuz `loading more` feature may cause offsetTop to change
+            */
+            var offsetTop = getElemOffsetTop(elem);
+            if (offsetTop > scrollY && offsetTop < scrollY + viewportHeight + delta) {
+                return true;
+            }
+            return false;
+        }
+
     }
 
 
@@ -184,7 +213,7 @@
                     if ({}) {return true} // true
                     if ("") {return true} // false
                 */
-                if (elems.length) elems.splice(i--, 1);                
+                if (elems.length) elems.splice(i--, 1);
                 loadElement(el);
             }
         }
