@@ -87,11 +87,15 @@
         /*
             Array.prototype.slice.call doesn't work in IE
         */
-        var elems = [];
-        for (var i = 0; i < elements.length; i++) {
-            elems.push(elements[i]);
+        try {
+            return Array.prototype.slice.call(elements);
+        } catch(e) {
+            var elems = [];
+            for (var i = 0; i < elements.length; i++) {
+                elems.push(elements[i]);
+            }
+            return elems;
         }
-        return elems;
     }
 
     /*
