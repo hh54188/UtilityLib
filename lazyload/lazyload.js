@@ -191,7 +191,7 @@
             // iPad Safari doesn't support `getBoundingClientRect` method
             var scrollY = window.scrollY;
             /*
-                I have to calcuate offsetTop everytime,
+                I have to re-calcuate offsetTop everytime,
                 cuz `loading more` feature may cause offsetTop to change
             */
             var offsetTop = getElemOffsetTop(elem);
