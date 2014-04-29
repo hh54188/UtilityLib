@@ -16,7 +16,7 @@
             background: red;
 
             position: sticky;
-            top: 0;
+            top: 30px;
 
             margin-top: 300px;
         }
@@ -33,13 +33,15 @@
             width: 100px;
             height: 100px;
             background: skyblue;
+
+            margin-top: -30px;
         }
     </style>
 </head>
 <body>
     <div id="intro">
         <h1>This is a test for native position:sticky feature test</h1>
-        <p>When I write this test page, there aren't too many browsers support this feature. Actually speaking: no one in PC.</p>
+        <p>When I write this test page(2014.4.29), there aren't too many browsers support this feature. Actually speaking: no one in PC.</p>
         <ul>
             <li>Check if available: <a href="http://caniuse.com/#search=sticky" target="_blank">http://caniuse.com/#search=sticky</a></li>
             <li>How to enable in Chrome 34: 1) chrome://flags 2) #enable-experimental-web-platform-features</li>
@@ -48,7 +50,15 @@
 
     <div class="sticky">In the body</div>
     <div class="container">
-        <div class="sticky-in-parent"></div>
+        <div class="sticky-in-parent">
+            In Container
+        </div>
     </div>
+    <script type="text/javascript">
+        var sticky = document.querySelector(".sticky");
+        window.onscroll = function () {
+            console.log(sticky.offsetTop);
+        }
+    </script>
 </body>
 </html>

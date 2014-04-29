@@ -1,3 +1,32 @@
+/*
+	This plugin work for simulating `position:stikcy` effect
+
+
+
+	When I write this plugin(2014.4.29), almost no PC browser support 
+	this feature(please check http://caniuse.com/#search=sticky for insurance).
+
+	Only in Chrome 34 could support the feature by enable 
+	`#enable-experimental-web-platform-features` in `chrome://flags`.
+
+	Please view `./test/native.html` for native feature test.
+
+
+	
+	With the native test above and https://github.com/filamentgroup/fixed-sticky mentioned
+	, there are some native caveats to be noticed:
+
+	- `bottom` property doesn't work;
+
+	- `sticky` elements are constrained to the dimensions of their parents.
+
+	- Any non-default value (not visible) for overflow, overflow-x, 
+	or overflow-y on the parent element(not offsetParent) will disable position: sticky.
+	**But in this plugin, we ignored**
+
+	- Element with `inline` and `inline-block` doesn't work;
+	**But in this plugin, we ignored**
+*/
 ;
 (function(global) {
 
