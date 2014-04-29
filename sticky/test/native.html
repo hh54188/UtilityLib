@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style type="text/css">
+        body {
+            height: 4000px;
+        }
+        #intro {
+            position: fixed;
+            top: 0
+        }
+        .sticky {
+            width: 100px;
+            height: 100px;
+            background: red;
+
+            position: sticky;
+            top: 0;
+
+            margin-top: 300px;
+        }
+        .container {
+            border: 1px solid black;
+            width: 200px;
+            height: 500px;
+            margin: 0 auto;
+        }
+        .sticky-in-parent {
+            position: sticky;
+            top: 0;
+
+            width: 100px;
+            height: 100px;
+            background: skyblue;
+        }
+    </style>
+</head>
+<body>
+    <div id="intro">
+        <h1>This is a test for native position:sticky feature test</h1>
+        <p>When I write this test page, there aren't too many browsers support this feature. Actually speaking: no one in PC.</p>
+        <ul>
+            <li>Check if available: <a href="http://caniuse.com/#search=sticky" target="_blank">http://caniuse.com/#search=sticky</a></li>
+            <li>How to enable in Chrome 34: 1) chrome://flags 2) #enable-experimental-web-platform-features</li>
+        </ul>
+    </div>
+
+    <div class="sticky">In the body</div>
+    <div class="container">
+        <div class="sticky-in-parent"></div>
+    </div>
+</body>
+</html>
