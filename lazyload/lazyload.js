@@ -48,9 +48,10 @@
         } else if (window.attachEvent) {
             /*
                 IE8 and below version doesn't support addEventListener,
-                and ensure the `scroll` and `resize` only bind(and work) on `window` object
+                and ensure the `scroll` and `resize` only bind(and work) on `window` object:
+
+                el = window;
             */
-            el = window;
             el.attachEvent("on" + eventType, fn);
         } else {
             el["on" + eventType] = fn;
@@ -106,7 +107,7 @@
 
 		**Remove callback timestamp parameter**
 	*/
-    var vendors = ['', 'ms', 'moz', 'webkit', 'o'];
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
     for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
         window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
         window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] || window[vendors[x] + 'CancelRequestAnimationFrame'];
