@@ -45,13 +45,12 @@
         doc = document;
 
     defalutSelectorClas = "data-sticky-elem",
-    defalutStickyToElem = document.documentElement || document.body,
-
-    isRootElem = false,
-    stickInfo = {},
+    // defalutStickyToElem = document.documentElement || document.body,
+    // isRootElem = false,
+    stickInfo = [],
     // Sticky Parameter:
-    selectorClas = defalutSelectorClas,
-    stickyToElement = defalutStickyToElem;
+    selectorClas = defalutSelectorClas;
+    // stickyToElement = defalutStickyToElem;
 
     function getElemsByClassName(className) {
         var elements = [];
@@ -153,6 +152,10 @@
     }
 
     function getElemOffsetTop(el) {
+        /*
+            https://developer.mozilla.org/zh-CN/docs/DOM/element
+            OffsetTop: The distance from this element's **top border** to its offsetParent's **top border**.
+        */
         var top = el.offsetTop;
         var parent = el.offsetParent;
 
@@ -183,17 +186,21 @@
         // }
     });
 
+    function getCurStyle(element, prop) {
+        /*
+            Getstyle compatibility:
+            http://www.quirksmode.org/dom/getstyles.html
+        */
+        return win.getComputedStyle? 
+                    win.getComputedStyle(element).getPropertyValue(prop):
+                    element.currentStyle(prop);
+    }
+
     function addStickStyleToEle(elems) {
         var stickyText = "position:sticky;position:-webkit-sticky;position:-moz-sticky;position:-o-sticky;position:-ms-sticky;";
         for (var i = 0; i < elems.length; i++) {
             var temp = elems[i];
-            /*
-                Get style compatibility:
-                http://www.quirksmode.org/dom/getstyles.html
-            */
-            var positionStyle = win.getComputedStyle? 
-                        win.getComputedStyle(temp).getPropertyValue("position"):
-                        temp.currentStyle("position");
+            var positionStyle = getCurStyle(element, "position");
 
             if (positionStyle.indexOf("sticky") > -1) {
                 continue;
@@ -203,19 +210,32 @@
         }
     }
 
-    function updateStickyInfo() {
-        
-    }
-
     global.Util.sticky = function(options) {
         options = options || {};
 
         selectorClas = options.selectorClas || defalutSelectorClas;
         stickyElems = getElemsByClassName(selectorClas);
 
+        if (!stickyElems.length) return;
+
         if (supportSticky) {
             addStickStyleToEle(stickyElems);
             return;
+        }
+
+        for (var i = 0; i < stickyElems.length; i++) {
+            var temp = stickyElems[i];
+            var stickyToElem = temp.parentNode;
+
+            // var 
+            var offsetTop = getElemOffsetTop(temp);
+            var marginBot = getCurStyle(temp, "margin-bottom");
+
+            if (parent.tagName.toLowerCase() == "body") {
+
+            }
+
+            stickInfo.push()
         }
     }
 
