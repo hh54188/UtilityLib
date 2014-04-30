@@ -20,6 +20,14 @@
 
 	- `sticky` elements are constrained to the dimensions of their parents.
 
+    - If two elements in the same container, they will not stack
+
+    - If `sticky` elements change their height in half way.The browser know it
+    **But in this plugin, we ignored(Considering...cuz comupted it cost performance)**
+
+    - `sticky` element's margin-top doesn't matter, 
+    but margin-bottom will effect how disappeared(both negative or positive)
+
 	- Any non-default value (not visible) for overflow, overflow-x, 
 	or overflow-y on the parent element(not offsetParent) will disable position: sticky.
 	**But in this plugin, we ignored**
@@ -39,9 +47,8 @@
     defalutSelectorClas = "data-sticky-elem",
     defalutStickyToElem = document.documentElement || document.body,
 
-    stickyElem = null,
     isRootElem = false,
-
+    stickInfo = {},
     // Sticky Parameter:
     selectorClas = defalutSelectorClas,
     stickyToElement = defalutStickyToElem;
@@ -90,7 +97,12 @@
             el["on" + evtType] = handler;
         }
     }
+    /*  
+        Check style feature support:
 
+        https://github.com/filamentgroup/fixed-sticky/blob/master/fixedsticky.js#L3-L15
+        Modernizr! https://github.com/phistuck/Modernizr/commit/3fb7217f5f8274e2f11fe6cfeda7cfaf9948a1f5
+    */
     function styleSupport(prop, value, hasPerfix) {
         var perfix = ["-webkit-", "-moz-", "-o-", "-ms-"],
             prop = prop + ":";
@@ -157,8 +169,8 @@
         var scorllY = window.scorllY;
         var elem, offsetTop;
 
-        // for (var i = 0; i < stickyElem.length; i++) {
-        // 	elem = stickyElem[i];
+        // for (var i = 0; i < stickyElems.length; i++) {
+        // 	elem = stickyElems[i];
         // 	offsetTop = getElemOffsetTop(elem);
 
         // 	if (offsetTop <= scorllY) {
@@ -171,13 +183,40 @@
         // }
     });
 
+    function addStickStyleToEle(elems) {
+        var stickyText = "position:sticky;position:-webkit-sticky;position:-moz-sticky;position:-o-sticky;position:-ms-sticky;";
+        for (var i = 0; i < elems.length; i++) {
+            var temp = elems[i];
+            /*
+                Get style compatibility:
+                http://www.quirksmode.org/dom/getstyles.html
+            */
+            var positionStyle = win.getComputedStyle? 
+                        win.getComputedStyle(temp).getPropertyValue("position"):
+                        temp.currentStyle("position");
+
+            if (positionStyle.indexOf("sticky") > -1) {
+                continue;
+            } else {
+                temp.style.cssText = stickyText;
+            }
+        }
+    }
+
+    function updateStickyInfo() {
+        
+    }
+
     global.Util.sticky = function(options) {
         options = options || {};
 
         selectorClas = options.selectorClas || defalutSelectorClas;
-        stickyToElement = options.stickyToElement || defalutStickyToElem;
+        stickyElems = getElemsByClassName(selectorClas);
 
-        stickyElem = getElemsByClassName(selectorClas);
+        if (supportSticky) {
+            addStickStyleToEle(stickyElems);
+            return;
+        }
     }
 
 })(this);

@@ -35,6 +35,13 @@
             background: skyblue;
 
             margin-top: -30px;
+            margin-bottom: -30px;
+
+            border: 1px solid black;
+        }
+        .static {
+            height: 100px;
+            background: yellow;
         }
     </style>
 </head>
@@ -53,6 +60,10 @@
         <div class="sticky-in-parent">
             In Container
         </div>
+        <div class="sticky-in-parent" style="margin-top:30px;">
+            In Container 2
+        </div>        
+        <div class="static">position:static element</div>
     </div>
     <script type="text/javascript">
         var sticky = document.querySelector(".sticky");
