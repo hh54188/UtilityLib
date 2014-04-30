@@ -191,9 +191,9 @@
             Getstyle compatibility:
             http://www.quirksmode.org/dom/getstyles.html
         */
-        return win.getComputedStyle? 
-                    win.getComputedStyle(element).getPropertyValue(prop):
-                    element.currentStyle(prop);
+        return win.getComputedStyle ?
+            win.getComputedStyle(element).getPropertyValue(prop) :
+            element.currentStyle(prop);
     }
 
     function addStickStyleToEle(elems) {
@@ -234,17 +234,19 @@
 
             var parentOffsetTop = getElemOffsetTop(parent),
                 parentOutHeight = 0;
-
+            /*
+                http://www.quirksmode.org/dom/w3c_cssom.html#t34
+            */
             var start = targetOffsetTop - targetTop,
-                end = parentOffsetTop + parentOutHeight - 
+                end = parentOffsetTop + parentOutHeight -
 
-            // var marginBot = getCurStyle(temp, "margin-bottom");
+                // var marginBot = getCurStyle(temp, "margin-bottom");
 
-            // stickInfo.push({
-            //     target: temp,
-            //     isbody: stickyToElem.tagName.toLowerCase() == "body"? true: false,
-            //     stickyToElem: stickyToElem
-            // });
+                // stickInfo.push({
+                //     target: temp,
+                //     isbody: stickyToElem.tagName.toLowerCase() == "body"? true: false,
+                //     stickyToElem: stickyToElem
+                // });
         }
     }
 
