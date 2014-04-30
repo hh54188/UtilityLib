@@ -225,17 +225,26 @@
 
         for (var i = 0; i < stickyElems.length; i++) {
             var temp = stickyElems[i];
-            var stickyToElem = temp.parentNode;
+            var parent = temp.parentNode;
 
-            // var 
-            var offsetTop = getElemOffsetTop(temp);
-            var marginBot = getCurStyle(temp, "margin-bottom");
+            var targetOffsetTop = getElemOffsetTop(temp),
+                targetTop = parseInt(getCurStyle(temp, "top")) || 0,
+                targetHeight = parseInt(getCurStyle(temp, "top")) || 0,
+                targetMarginBottom = parseInt(getCurStyle(temp, "margin-bottom")) || 0;
 
-            if (parent.tagName.toLowerCase() == "body") {
+            var parentOffsetTop = getElemOffsetTop(parent),
+                parentOutHeight = 0;
 
-            }
+            var start = targetOffsetTop - targetTop,
+                end = parentOffsetTop + parentOutHeight - 
 
-            stickInfo.push()
+            // var marginBot = getCurStyle(temp, "margin-bottom");
+
+            // stickInfo.push({
+            //     target: temp,
+            //     isbody: stickyToElem.tagName.toLowerCase() == "body"? true: false,
+            //     stickyToElem: stickyToElem
+            // });
         }
     }
 
