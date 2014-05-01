@@ -16,14 +16,18 @@
 	With the native test above and https://github.com/filamentgroup/fixed-sticky mentioned
 	, there are some native caveats to be noticed:
 
+    - Please don't add any sytle to element directly
+
 	- `bottom` property doesn't work;
 
 	- `sticky` elements are constrained to the dimensions of their parents.
 
     - If two elements in the same container, they will not stack
 
+    - The `position:fixed` fallback would effected by `margin-top`, but `sticky` doesn't
+
     - If `sticky` elements change their height in half way.The browser know it
-    **But in this plugin, we ignored(Considering...cuz comupted it cost performance)**
+    **But in this plugin, we ignored(Considering...cuz comupted need lots of performance cost)**
 
     - `sticky` element's margin-top doesn't matter, 
     but margin-bottom will effect how disappeared(both negative or positive)
@@ -167,25 +171,6 @@
         return top;
     }
 
-    bindEventHandler(win, "scroll", function() {
-
-        var scorllY = window.scorllY;
-        var elem, offsetTop;
-
-        // for (var i = 0; i < stickyElems.length; i++) {
-        // 	elem = stickyElems[i];
-        // 	offsetTop = getElemOffsetTop(elem);
-
-        // 	if (offsetTop <= scorllY) {
-        // 		if(supportFixed) {
-        // 			elem.style.position = "fixed";
-        // 		} else {
-        // 			// If doesn't support potition:fixed;
-        // 		}
-        // 	}
-        // }
-    });
-
     function getCurStyle(element, prop) {
         /*
             Getstyle compatibility:
@@ -210,7 +195,7 @@
         }
     }
 
-    global.Util.sticky = function(options) {
+    var initSticky = function(options) {
         options = options || {};
 
         selectorClas = options.selectorClas || defalutSelectorClas;
@@ -226,28 +211,60 @@
         for (var i = 0; i < stickyElems.length; i++) {
             var temp = stickyElems[i];
             var parent = temp.parentNode;
-
+            /*
+                outerHeight: height + padding + border
+                http://www.quirksmode.org/dom/w3c_cssom.html#t34
+                https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.offsetHeight                    
+            */
             var targetOffsetTop = getElemOffsetTop(temp),
-                targetTop = parseInt(getCurStyle(temp, "top")) || 0,
-                targetHeight = parseInt(getCurStyle(temp, "top")) || 0,
+                targetOuterHeight = temp.offsetHeight,
+                targetTop = temp.getAttribute("data-sticky-top") || 0,
                 targetMarginBottom = parseInt(getCurStyle(temp, "margin-bottom")) || 0;
 
             var parentOffsetTop = getElemOffsetTop(parent),
-                parentOutHeight = 0;
-            /*
-                http://www.quirksmode.org/dom/w3c_cssom.html#t34
-            */
+                parentOuterHeight = parent.offsetHeight;
+
             var start = targetOffsetTop - targetTop,
-                end = parentOffsetTop + parentOutHeight -
+                end = parentOffsetTop + parentOuterHeight - targetOuterHeight - targetTop - targetMarginBottom;
 
-                // var marginBot = getCurStyle(temp, "margin-bottom");
-
-                // stickInfo.push({
-                //     target: temp,
-                //     isbody: stickyToElem.tagName.toLowerCase() == "body"? true: false,
-                //     stickyToElem: stickyToElem
-                // });
+            stickInfo.push({
+                target: temp,
+                parentIsbody: parent.tagName.toLowerCase() == "body" ? true : false,
+                targetTop: targetTop,
+                start: start,
+                end: end
+            });
         }
+    }
+
+    /*
+        Below is just for test, need for more detail
+    */
+    window.onload = function() {
+        initSticky();
+    }
+
+    window.onscroll = function() {
+        var scrollY = window.scrollY;
+        stickInfo.forEach(function(item) {
+            var target = item.target,
+                start = item.start,
+                end = item.end,
+                top = item.targetTop;
+
+
+            if (scrollY >= start) {
+
+                console.log("It happened!");
+                target.style.position = "fixed";
+                target.style.top = top + "px";
+                target.style.marginTop = 0; // `position:fixed` will be effected by marginTop
+            } else {
+                console.log("It resotred!");
+                target.style.position = "";
+                target.style.marginTop = "";
+            }
+        });
     }
 
 })(this);
