@@ -229,7 +229,6 @@
 
             stickInfo.push({
                 target: temp,
-                parentIsbody: parent.tagName.toLowerCase() == "body" ? true : false,
                 targetTop: targetTop,
                 start: start,
                 end: end
@@ -246,23 +245,33 @@
 
     window.onscroll = function() {
         var scrollY = window.scrollY;
+        var stickyDelta = 50;
+
         stickInfo.forEach(function(item) {
             var target = item.target,
                 start = item.start,
                 end = item.end,
                 top = item.targetTop;
 
+            console.log(start, end, scrollY);
 
-            if (scrollY >= start) {
+            if ()
 
-                console.log("It happened!");
+            if (scrollY >= start && scrollY < end) {
+
                 target.style.position = "fixed";
                 target.style.top = top + "px";
                 target.style.marginTop = 0; // `position:fixed` will be effected by marginTop
-            } else {
-                console.log("It resotred!");
+
+            } else if (scrollY < start){
+
                 target.style.position = "";
                 target.style.marginTop = "";
+
+            } else {
+
+                target.style.position = "absolute";
+
             }
         });
     }
