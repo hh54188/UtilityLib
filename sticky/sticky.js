@@ -49,12 +49,8 @@
         doc = document;
 
     defalutSelectorClas = "data-sticky-elem",
-    // defalutStickyToElem = document.documentElement || document.body,
-    // isRootElem = false,
     stickInfo = [],
-    // Sticky Parameter:
     selectorClas = defalutSelectorClas;
-    // stickyToElement = defalutStickyToElem;
 
     function getElemsByClassName(className) {
         var elements = [];
@@ -106,18 +102,18 @@
         https://github.com/filamentgroup/fixed-sticky/blob/master/fixedsticky.js#L3-L15
         Modernizr! https://github.com/phistuck/Modernizr/commit/3fb7217f5f8274e2f11fe6cfeda7cfaf9948a1f5
     */
-    function styleSupport(prop, value, hasPerfix) {
+    function styleSupport(property, value, hasPerfix) {
         var perfix = ["-webkit-", "-moz-", "-o-", "-ms-"],
-            prop = prop + ":";
+            prop = property + ":";
 
         var testdiv = document.createElement("div");
         if (hasPerfix) {
-            testdiv.style = prop + perfix.join(value + ";" + prop) + value;
+            testdiv.style.cssText = prop + perfix.join(value + ";" + prop) + value;
         } else {
-            testdiv.style = prop + value;
+            testdiv.style.cssText = prop + value;
         }
 
-        if (testdiv.style.cssText.indexOf(value) > -1) return true;
+        if (testdiv.style[property].indexOf(value) > -1) return true;
 
         return false;
     }
@@ -217,63 +213,111 @@
                 https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.offsetHeight                    
             */
             var targetOffsetTop = getElemOffsetTop(temp),
-                targetOuterHeight = temp.offsetHeight,
-                targetTop = temp.getAttribute("data-sticky-top") || 0,
-                targetMarginBottom = parseInt(getCurStyle(temp, "margin-bottom")) || 0;
+                targetTop = temp.getAttribute("data-sticky-top") || 0;
 
-            var parentOffsetTop = getElemOffsetTop(parent),
-                parentOuterHeight = parent.offsetHeight;
-
-            var start = targetOffsetTop - targetTop,
-                end = parentOffsetTop + parentOuterHeight - targetOuterHeight - targetTop - targetMarginBottom;
+            var start = targetOffsetTop - targetTop;
 
             stickInfo.push({
                 target: temp,
                 targetTop: targetTop,
                 start: start,
-                end: end
+                clone: null
             });
         }
     }
 
     /*
-        Below is just for test, need for more detail
+        Check Per Frame:
     */
-    window.onload = function() {
-        initSticky();
+
+    var lastScrollY,
+        waitNextFrame = false;
+
+    function updatePosition() {
+        if (!waitNextFrame) {
+            win.requestAnimationFrame(checkPerFrame); // Async
+        }
+        waitNextFrame = true;
     }
 
-    window.onscroll = function() {
-        var scrollY = window.scrollY;
-        var stickyDelta = 50;
-
+    function checkPerFrame() {
         stickInfo.forEach(function(item) {
             var target = item.target,
                 start = item.start,
-                end = item.end,
-                top = item.targetTop;
+                top = item.targetTop,
+                clone = item.clone;
 
-            console.log(start, end, scrollY);
+            if (lastScrollY >= start) {
+                if (supportFixed) {
+                    target.style.position = "fixed";
+                    target.style.top = top + "px";
+                    target.style.marginTop = 0; // `position:fixed/absoluted` will be effected by marginTop                    
+                } else {
+                    clone = clone ? clone :
+                        target.parentNode.tagName.toLowerCase() == "body" ? target : target.cloneNode(true);
+                    target.style.display = "none";
 
-            if ()
+                    clone.style.position = "absolute";
+                    clone.style.top = lastScrollY + top + "px";
+                    clone.style.marginTop = 0;
+                }
 
-            if (scrollY >= start && scrollY < end) {
-
-                target.style.position = "fixed";
-                target.style.top = top + "px";
-                target.style.marginTop = 0; // `position:fixed` will be effected by marginTop
-
-            } else if (scrollY < start){
-
-                target.style.position = "";
-                target.style.marginTop = "";
 
             } else {
 
-                target.style.position = "absolute";
-
+                target.style.position = "";
+                target.style.marginTop = "";
+                target.style.top = "";
             }
         });
+        waitNextFrame = false;
     }
+
+
+    /*
+        Initialize DOM Event:
+    */
+    function whenDOMContentLoaded() {
+
+        initSticky();
+
+        bindEventHandler(win, "scroll", function() {
+            lastScrollY = win.scrollY;
+            updatePosition();
+        });        
+    }
+    /*
+        DOMContentLoaded and its polyfill
+    */
+
+    function checkReadyState () {
+        if (doc.readyState == "complete") {
+            doc.detachEvent("onreadystatechange", checkReadyState);
+            whenDOMContentLoaded();
+        }        
+    }
+
+    function tryDoScroll() {
+           
+    }
+
+    if (doc.addEventListener) {
+        doc.addEventListener("DOMContentLoaded", whenDOMContentLoaded, false);
+    } else {
+        // In fact, `onreadystatechange` is no different with `onload`
+        doc.attachEvent("onreadystatechange", checkReadyState);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
 })(this);
