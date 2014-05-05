@@ -41,21 +41,23 @@
 */
 ;
 (function(global) {
+    /*
+        // `console.log` in IE is awkward
+        if (window.navigator.userAgent.toLowerCase().indexOf("msie") > -1) {
+            var originLog = console.log;
+            console.log = function () {
+                var parameters = Array.prototype.slice.call(arguments);
+                var str = "";
 
-    if (window.navigator.userAgent.toLowerCase().indexOf("msie") > -1) {
-        var originLog = console.log;
-        console.log = function () {
-            var parameters = Array.prototype.slice.call(arguments);
-            var str = "";
-
-            for (var i = 0; i < parameters.length; i++) {
-                str += parameters[i] + " ";
+                for (var i = 0; i < parameters.length; i++) {
+                    str += parameters[i] + " ";
+                }
+                originLog(str);
             }
-            originLog(str);
         }
-    }
+    */
 
-    console.log(1,2,3);
+
 
     global.Util = global.Util || {};
     if (Util.sticky) return;
@@ -189,7 +191,7 @@
         */
         return win.getComputedStyle ?
             win.getComputedStyle(element).getPropertyValue(prop) :
-            element.currentStyle(prop);
+            element.currentStyle[prop];
     }
 
     function addStickStyleToEle(elems) {
