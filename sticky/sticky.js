@@ -42,6 +42,21 @@
 ;
 (function(global) {
 
+    if (window.navigator.userAgent.toLowerCase().indexOf("msie") > -1) {
+        var originLog = console.log;
+        console.log = function () {
+            var parameters = Array.prototype.slice.call(arguments);
+            var str = "";
+
+            for (var i = 0; i < parameters.length; i++) {
+                str += parameters[i] + " ";
+            }
+            originLog(str);
+        }
+    }
+
+    console.log(1,2,3);
+
     global.Util = global.Util || {};
     if (Util.sticky) return;
 
@@ -213,14 +228,24 @@
                 https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.offsetHeight                    
             */
             var targetOffsetTop = getElemOffsetTop(temp),
+                targetOuterHeight = temp.offsetHeight,
+                targetMarginBottom = parseInt(getCurStyle(temp, "margin-bottom")) || 0,
                 targetTop = temp.getAttribute("data-sticky-top") || 0;
 
-            var start = targetOffsetTop - targetTop;
+            var parentOffsetTop = getElemOffsetTop(parent),
+                parentOuterHeight = parent.offsetHeight,
+                parentPosition = getCurStyle(temp, "position");
+
+            var start = targetOffsetTop - targetTop,
+                end = parentOffsetTop + parentOuterHeight - targetOuterHeight - targetTop - targetMarginBottom;
 
             stickInfo.push({
                 target: temp,
                 targetTop: targetTop,
+                hasOffsetParent: parentPosition.indexOf("absolute") > -1 || parentPosition.indexOf("relative") > -1,
+                parent: parent,
                 start: start,
+                end: end,
                 clone: null
             });
         }
@@ -241,20 +266,35 @@
     }
 
     function checkPerFrame() {
-        stickInfo.forEach(function(item) {
+        for (var i = 0; i < stickInfo.length; i++) {
+            var item = stickInfo[i];
             var target = item.target,
                 start = item.start,
+                end = item.end,
                 top = item.targetTop,
+                hasOffsetParent = item.hasOffsetParent,
+                parent = item.parent,
                 clone = item.clone;
 
-            if (lastScrollY >= start) {
+            if (lastScrollY >= start && lastScrollY <= end) {
+
                 if (supportFixed) {
+
                     target.style.position = "fixed";
                     target.style.top = top + "px";
                     target.style.marginTop = 0; // `position:fixed/absoluted` will be effected by marginTop                    
+
                 } else {
-                    clone = clone ? clone :
-                        target.parentNode.tagName.toLowerCase() == "body" ? target : target.cloneNode(true);
+
+                    if (!clone) {
+                        if (target.parentNode.tagName.toLowerCase() == "body") {
+                            clone = target;
+                        } else {
+                            clone = target.cloneNode(true);
+                            document.body.appendChild(clone);
+                        }
+                    }
+
                     target.style.display = "none";
 
                     clone.style.position = "absolute";
@@ -262,20 +302,44 @@
                     clone.style.marginTop = 0;
                 }
 
+            } else if (lastScrollY > end) {
 
-            } else {
+                if (!supportFixed) {
+                    target.style.display = "";
+                    clone.style.display = "none";
+                }
 
-                target.style.position = "";
-                target.style.marginTop = "";
+                if (!hasOffsetParent) {
+                    parent.style.position = "relative";
+                }
+
+                target.style.position = "absolute";
+                target.style.bottom = 0;
                 target.style.top = "";
-            }
-        });
+
+            } else if (lastScrollY < start){
+
+                if (!supportFixed) {
+                    target.style.display = "";
+                    clone.style.display = "none";
+                }
+
+                // Restore:
+                target.style.position = "";
+                target.style.bottom = "";
+                target.style.top = "";                
+                target.style.marginTop = "";
+
+                parent.style.position = "";
+            }            
+        }
         waitNextFrame = false;
     }
 
 
     /*
         Initialize DOM Event:
+        DOMContentLoaded and its polyfill
     */
     var TIMER,
         LOADED = false;
@@ -293,13 +357,11 @@
         initSticky();
 
         bindEventHandler(win, "scroll", function() {
-            lastScrollY = win.scrollY;
+            // http://stackoverflow.com/questions/16618785/ie8-alternative-to-window-scrolly
+            lastScrollY = win.scrollY || document.documentElement.scrollTop;
             updatePosition();
         });        
     }
-    /*
-        DOMContentLoaded and its polyfill
-    */
 
     function checkReadyState () {
         if (doc.readyState == "complete") {
@@ -322,7 +384,7 @@
     } else {
         doc.attachEvent("onreadystatechange", checkReadyState);
     }
-    // If 1) Not a frame; 2) Have `doscroll` method
+    // `doScroll` for IE, if 1) Not a frame; 2) Have `doscroll` method
     if (win == win.top && document.documentElement.doScroll && !tryDoScroll()) {
         TIMER = setInterval(function () {
             if (tryDoScroll()) {
