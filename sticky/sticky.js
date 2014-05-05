@@ -369,7 +369,7 @@
         if (doc.readyState == "complete") {
             doc.detachEvent("onreadystatechange", checkReadyState);
             whenDOMContentLoaded();
-        }        
+        }
     }
 
     function tryDoScroll() {
@@ -395,17 +395,5 @@
             }
         });
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 })(this);
