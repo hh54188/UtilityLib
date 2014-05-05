@@ -277,7 +277,18 @@
     /*
         Initialize DOM Event:
     */
+    var TIMER,
+        LOADED = false;
+
     function whenDOMContentLoaded() {
+
+        if (doc.addEventListener) {
+            doc.removeEventListener("DOMContentLoaded", whenDOMContentLoaded);
+        }
+
+        if (TIMER) {
+            win.clearInterval(TIMER);
+        }
 
         initSticky();
 
@@ -298,14 +309,27 @@
     }
 
     function tryDoScroll() {
-           
+        try {
+            document.documentElement.doScroll("left");
+            return true;
+        } catch (e) {
+            return false;    
+        }
     }
 
     if (doc.addEventListener) {
         doc.addEventListener("DOMContentLoaded", whenDOMContentLoaded, false);
     } else {
-        // In fact, `onreadystatechange` is no different with `onload`
         doc.attachEvent("onreadystatechange", checkReadyState);
+    }
+    // If 1) Not a frame; 2) Have `doscroll` method
+    if (win == win.top && document.documentElement.doScroll && !tryDoScroll()) {
+        TIMER = setInterval(function () {
+            if (tryDoScroll()) {
+                win.clearInterval(TIMER);
+                whenDOMContentLoaded();
+            }
+        });
     }
 
 
