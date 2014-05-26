@@ -7,6 +7,13 @@
 		defaultSelector = "data-scroll2top",
 		button;
 
+	/*
+		At first I consider using `transition` to achieve animate effect,
+		So I write this `checkStyle` function to check if element support `transition` style,
+		then I found the `scrollTop` is not a style property, the `transition` doesn't work on it
+
+		But I still left the function here to commemorate
+	*/
 	var checkStyleSupport = function (property, value, hasPrefix) {
 		var perfixs = ["-moz-", "-webkit-", "-o-", "-ms-"];
 		var testElement = doc.createElement("div");
@@ -20,6 +27,33 @@
 
 		return testElement.style.cssText.indexOf(property) > -1? true: false;
 	}
+
+	;(function () {
+		
+		if (win.requestAnimtionFrame) return;
+
+		var perfixs = ["webkit", "moz", "o", "ms"];
+		for (var i = 0; i < perfixs.length && !win.requestAnimtionFrame; i++) {
+			win.requestAnimtionFrame = win[perfixs[i] + "RequestAnimtionFrame"];
+			win.cancelAnimtionFrame = win[perfixs[i] + "CancelAnimtionFrame"];
+
+		}
+
+		if (!win.requestAnimtionFrame) {
+			win.requestAnimtionFrame = function (callback) {
+			 	return setTimeout(function () {
+			 		if (callback) callback();
+				}, 16);
+			}
+		}
+
+		if (!win.cancelAnimtionFrame) {
+			win.cancelAnimtionFrame = function (id) {
+				win.clearTimeout(id);
+			}
+		}
+
+	})();
 
 	var getElementsByClassName = function (name) {
 		var selector = name || defaultSelector;
@@ -54,6 +88,30 @@
 		}
 	}
 
-	var animate = 
+	var animate = function (to, seconds) {
+		seconds  = seconds || 0.3;
+		var from = document.documentElement.scrollTop;
+		var rAF = window.requestAnimationFrame;
+		var perFrameDelta = ((to - from) / (seconds * 1000)) * 15;
+
+        /*
+			rAF is a nice tool, solve lots of problem:
+			http://www.infoq.com/cn/articles/javascript-high-performance-animation-and-page-rendering
+
+			Achieve animation in specify seconds without css transition, I have to calculate increase increment for each fame(16ms)
+			AND THIS CAN'T BE ACCURATE!
+
+			I use `window.performance.mark`/`window.performance.measure` to calculate total animation cost, there are some deviation
+        */
+		rAF(function frameCallback() {
+			from = from + perFrameDelta;
+			if (Math.abs(to - from) <= Math.abs(perFrameDelta)) {
+				document.documentElement.scrollTop = to;
+			} else {
+				document.documentElement.scrollTop = from;
+				rAF(frameCallback);
+			}
+		});
+	}
 
 })(this);
