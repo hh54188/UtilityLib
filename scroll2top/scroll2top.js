@@ -20,6 +20,10 @@
 
 		But I still left the function here to commemorate
 	*/
+
+	/*
+		Refer to sticky plugin styleSupport polyfill
+	*/	
 	var checkStyleSupport = function (property, value, hasPrefix) {
 		var perfixs = ["-moz-", "-webkit-", "-o-", "-ms-"];
 		var testElement = doc.createElement("div");
@@ -40,25 +44,25 @@
 	*/
 	;(function () {
 		
-		if (win.requestAnimtionFrame) return;
+		if (win.requestAnimationFrame) return;
 
 		var perfixs = ["webkit", "moz", "o", "ms"];
-		for (var i = 0; i < perfixs.length && !win.requestAnimtionFrame; i++) {
-			win.requestAnimtionFrame = win[perfixs[i] + "RequestAnimtionFrame"];
-			win.cancelAnimtionFrame = win[perfixs[i] + "CancelAnimtionFrame"];
+		for (var i = 0; i < perfixs.length && !win.requestAnimationFrame; i++) {
+			win.requestAnimationFrame = win[perfixs[i] + "requestAnimationFrame"];
+			win.cancelAnimationFrame = win[perfixs[i] + "CancelAnimationFrame"];
 
 		}
 
-		if (!win.requestAnimtionFrame) {
-			win.requestAnimtionFrame = function (callback) {
+		if (!win.requestAnimationFrame) {
+			win.requestAnimationFrame = function (callback) {
 			 	return setTimeout(function () {
 			 		if (callback) callback();
 				}, 16);
 			}
 		}
 
-		if (!win.cancelAnimtionFrame) {
-			win.cancelAnimtionFrame = function (id) {
+		if (!win.cancelAnimationFrame) {
+			win.cancelAnimationFrame = function (id) {
 				win.clearTimeout(id);
 			}
 		}
@@ -67,7 +71,7 @@
 
 	var getElementsByClassName = function (name) {
 		var selector = name || defaultSelector;
-		var results = [];
+		var results = [], elements;
 		var reg;
 
 		if (doc.querySelectorAll) {
@@ -75,17 +79,27 @@
 		} else if (doc.getElementsByClassName) {
 			results = doc.getElementsByClassName(selector);
 		} else {
-			results = doc.getElementsByTagName("*");
+			elements = doc.getElementsByTagName("*");
 			reg = new RegExp("^|\\s" + selector + "$|\\s");
-			for (var i = 0; i < results.length; i++) {
-				var temp = results[i];
+			for (var i = 0; i < elements.length; i++) {
+				var temp = elements[i];
 				if (reg.test(temp.className)) {
 					results.push(temp);
 				}
 			}
 		}
 
-		return Array.prototype.slice.call(results);
+		try {
+			return Array.prototype.slice.call(results);	
+		} catch(e) {
+			var temp = [];
+			for (var i = 0; i < results.length; i++) {
+				temp.push(results[i]);
+			}
+			return temp;
+		}
+
+		
 	};
 
 	var bindEventHandler = function (targets, event, handler) {
@@ -111,7 +125,7 @@
 
 		if (from == to) return;
 
-		var rAF = window.requestAnimationFrame;
+		var rAF = win.requestAnimationFrame;
 		var perFrameDelta = ((to - from) / (seconds * 1000)) * 15;
 
         /*
