@@ -106,8 +106,9 @@
 
 	var animate = function (to, seconds) {
 		seconds  = seconds || 0.3;
-		var from = document.documentElement.scrollTop;
-		
+		var from = document.documentElement.scrollTop || win.pageYOffset;
+		var curPageXOffset = document.documentElement.scrollLeft || win.pageXOffset;
+
 		if (from == to) return;
 
 		var rAF = window.requestAnimationFrame;
@@ -125,9 +126,21 @@
 		rAF(function frameCallback() {
 			from = from + perFrameDelta;
 			if (Math.abs(to - from) <= Math.abs(perFrameDelta)) {
-				document.documentElement.scrollTop = to;
+				/*
+					Because the `document.documentElement.scrollTop` doesn't support in quirk mode	
+					I turn to `window.scroll()` method
+				*/
+
+				// document.documentElement.scrollTop = to;
+
+				/*
+					Q: What's the differences between `window.scroll()` and `window.scrollTo()`
+					A: No differences // http://stackoverflow.com/questions/1925671/javascript-window-scroll-vs-window-scrollto
+				*/
+				win.scrollTo(curPageXOffset, to);
 			} else {
-				document.documentElement.scrollTop = from;
+				// document.documentElement.scrollTop = from;
+				win.scrollTo(curPageXOffset, from);
 				rAF(frameCallback);
 			}
 		});
