@@ -4,8 +4,14 @@
 
 	var win = window,
 		doc = document,
+
+		selector,
+		animation,
+
 		defaultSelector = "data-scroll2top",
-		button;
+		defaultAnimate = true,
+
+		btns;
 
 	/*
 		At first I consider using `transition` to achieve animate effect,
@@ -28,6 +34,10 @@
 		return testElement.style.cssText.indexOf(property) > -1? true: false;
 	}
 
+
+	/*
+		Refer to lazyload plugin rAF polyfill
+	*/
 	;(function () {
 		
 		if (win.requestAnimtionFrame) return;
@@ -76,21 +86,30 @@
 		}
 
 		return Array.prototype.slice.call(results);
-	}
+	};
 
-	var bindEventHandler = function (target, event, handler) {
-		if (win.addEventListener) {
-			target.addEventListener(event, handler, false);
-		} else if (win.attachEvent) {
-			target.attachEvent("on" + event, handler);
-		} else {
-			target["on" + event] = handler;
+	var bindEventHandler = function (targets, event, handler) {
+
+		for (var i = 0; i < targets.length; i++) {
+
+			var target = targets[i];
+
+			if (win.addEventListener) {
+				target.addEventListener(event, handler, false);
+			} else if (win.attachEvent) {
+				target.attachEvent("on" + event, handler);
+			} else {
+				target["on" + event] = handler;
+			}			
 		}
-	}
+	};
 
 	var animate = function (to, seconds) {
 		seconds  = seconds || 0.3;
 		var from = document.documentElement.scrollTop;
+		
+		if (from == to) return;
+
 		var rAF = window.requestAnimationFrame;
 		var perFrameDelta = ((to - from) / (seconds * 1000)) * 15;
 
@@ -112,6 +131,31 @@
 				rAF(frameCallback);
 			}
 		});
+	};
+
+	var init = function () {
+		btns = getElementsByClassName(selector);
+		bindEventHandler(btns, "click", function () {
+			if (animation) {
+				animate(0);	
+			} else {
+				document.documentElement.scrollTop = 0;
+			}
+			
+		});
+	};
+
+	global.Util.scroll2top = function (options) {
+		options = options || {};
+
+		try {
+			selector = options.classSelector || defaultSelector,
+			animation = options.animation == false? false: defaultAnimate;
+		} catch(e) {
+			return;
+		}
+
+		init();
 	}
 
 })(this);
