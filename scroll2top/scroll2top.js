@@ -185,4 +185,10 @@
 		init();
 	}
 
+	if (typeof define == "function" && define.amd) {
+		define(function (deps, exports, module) {
+			exports = global.Util.scroll2top;
+		});
+	}
+
 })(this);
