@@ -30,6 +30,13 @@
         selectorClass = defaultSelectorClass,
         scrollIntoView;
 
+    var isFunction = function (fn) {
+        if (Object.prototype.toString.call(fn) == "[object Function]") {
+            return true;
+        }
+        return false;
+    };
+
     /*
         simple deep copy for array(for originElems and elems)
     */
@@ -238,7 +245,7 @@
 
         elems = deepCopyArr(elems, originElems);
         delta = options.delta || 0;
-        scrollIntoView = options.scrollIntoView || new Function();
+        scrollIntoView = isFunction(options)? options: options.scrollIntoView || new Function();
 
         setViewportHeight();
 

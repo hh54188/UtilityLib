@@ -12,11 +12,13 @@
 		<li class="data-lazy-elem" id="third"></li>
 	</ul>
 	<script type="text/javascript">
-		Util.lazyload(function (cur, remain, origin) {
-			console.log("-----------------------------------")
-			console.log("cur--->", cur);
-			console.log("remain--->", remain);
-			console.log("origin--->", origin);
+		Util.lazyload({
+			scrollIntoView: function (cur, remain, origin) {
+				console.log("-----------------------------------")
+				console.log("cur--->", cur);
+				console.log("remain--->", remain);
+				console.log("origin--->", origin);
+			}
 		});
 	</script>
 </body>
