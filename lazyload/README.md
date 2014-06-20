@@ -1,3 +1,13 @@
+# Intro:
+
+Inspire by echojs:
+- http://toddmotto.com/echo-js-simple-javascript-image-lazy-loading/
+
+And:
+- http://css-tricks.com/snippets/javascript/lazy-loading-images/
+- https://github.com/fasterize/lazyload/blob/master/lazyload.js
+- http://blog.pamelafox.org/2014/01/improving-front-page-performance.html
+
 # How to use
 
 **1.Include the javascript file in head:**
@@ -36,6 +46,7 @@ Util.lazyload({
 ## delta
 
 - Description: How far to trigger the lazyload event:
+- Default: 0
 - Usage: 
 
 ```
@@ -47,6 +58,7 @@ Util.lazyload({
 ## selectorClass
 
 - Description: Custom supervise element class name
+- Default: `data-lazy-elem`
 - Usage:
 
 ```
@@ -60,6 +72,7 @@ Util.lazyload(function () {
 ## scrollIntoView
 
 - Description: Function to be called when supervised element scroll into view;
+- Default: `new Function()`
 - Parameters(in order):
 	1. cur: Element to trigger this callback function
 	2. remain: Elements which have not scroll into view yet.
